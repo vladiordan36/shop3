@@ -51,13 +51,16 @@ class PagesController extends Controller
     public function checkout(Request $request){
         $oldCart = Session::get('cart');
         $cart = new Cart($oldCart);
-        $message = '';
+        $message = 'Your order: <br /><br />';
 
         foreach($cart->products as $product){
-            $message = $message.$product['item']['title'].' x '.$product['quantity'].' : '.$product['price'].'\n';
+            $message = $message.$product['item']['title'].' x '.$product['quantity'].' : '.$product['price'].'$<br />';
         }
 
+        $message = $message.'<br />'.'Total: '.$cart->total.'$';
+
         mail($request->input('email'), __('messages.order'), $message);
+        echo $message;
 
         $request->session()->forget('cart');
         return redirect('/')->with('success', 'Checkout successful.');

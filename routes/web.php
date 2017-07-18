@@ -38,6 +38,11 @@ Route::get('/create/{id}',[
     'as' => 'product.edit'
 ]);
 
+Route::get('/create',[
+    'uses' => 'PostsController@create',
+    'as' => 'product.create'
+]);
+
 Route::get('/delete/{id}',[
     'uses' => 'PostsController@destroy',
     'as' => 'product.delete'

@@ -42,7 +42,7 @@
                         <ul class="dropdown-menu" role="menu">
                             <li>
                                 <a href="/posts">{{ __('messages.admin') }}</a>
-                                <a href="/posts/create">{{ __('messages.add') }}</a>
+                                <a href={{route('product.create')}}>{{ __('messages.add') }}</a>
 
                                 <a href="{{ route('logout') }}"
                                    onclick="event.preventDefault();

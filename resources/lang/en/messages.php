@@ -31,5 +31,6 @@ return [
     'forgot' => 'Forgot your password?',
     'name' => 'Name',
     'quantity' => 'Quantity',
-    'confirm psw' => 'Confirm password'
+    'confirm psw' => 'Confirm password',
+    'add to cart' => 'Add to cart'
 ];

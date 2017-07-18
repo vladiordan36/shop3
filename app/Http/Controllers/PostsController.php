@@ -17,12 +17,6 @@ class PostsController extends Controller
     public function index()
     {
         $posts = Post::all();
-        //$posts = Post::orderBy('price', 'asc')->get();
-        //$posts = Post::where('title', 'Koala')->get();
-        //$posts = DB::select('select * from products');
-        //$posts = Post::orderBy('price', 'asc')->take(2)->get();
-        //$posts = Post::orderBy('price', 'asc')->paginate(1);
-
         return view('posts.index')->with('products', $posts);
     }
 
