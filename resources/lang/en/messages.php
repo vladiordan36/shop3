@@ -3,7 +3,7 @@
 return [
     'products' => 'Products',
     'no products' => 'No products found',
-    'products' => 'Products',
+    'total' => 'Total: ',
     'cart' => 'Cart',
     'login' => 'Login',
     'register' => 'Register',
@@ -30,6 +30,7 @@ return [
     'remember' => 'Remember me',
     'forgot' => 'Forgot your password?',
     'name' => 'Name',
+    'order' => 'Your Order:',
     'quantity' => 'Quantity',
     'confirm psw' => 'Confirm password',
     'add to cart' => 'Add to cart'

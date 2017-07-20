@@ -11,7 +11,6 @@
 |
 */
 
-Route::get('/', 'PagesController@index');
 
 Route::get('/add-to-cart/{id}', [
     'uses' => 'PagesController@addToCart',
@@ -33,18 +32,18 @@ Route::get('/checkout', [
     'as' => 'product.checkout'
 ]);
 
-Route::get('/create/{id}',[
-    'uses' => 'PostsController@edit',
+Route::get('/product/{id}',[
+    'uses' => 'ProductsController@edit',
     'as' => 'product.edit'
 ]);
 
-Route::get('/create',[
-    'uses' => 'PostsController@create',
+Route::get('/product',[
+    'uses' => 'ProductsController@create',
     'as' => 'product.create'
 ]);
 
 Route::get('/delete/{id}',[
-    'uses' => 'PostsController@destroy',
+    'uses' => 'ProductsController@destroy',
     'as' => 'product.delete'
 ]);
 
@@ -52,8 +51,15 @@ Route::get('/cart','PagesController@cart');
 
 Route::get('/index', 'PagesController@index');
 
-Route::resource('/posts','PostsController');
+Route::resource('/admin','ProductsController');
 
-Auth::routes();
+Route::get('/login', function(){
+    return view('auth.login');
+});
 
-Route::get('/home', 'HomeController@index')->name('home');
+Route::post('/login-attempt',[
+    'uses' => 'PagesController@login',
+    'as' => 'page.login'
+]);
+
+Route::get('/logout', 'PagesController@logout');

@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Post;
+use App\Product;
 use DB;
 use Session;
 
-class PostsController extends Controller
+class ProductsController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -16,8 +16,8 @@ class PostsController extends Controller
      */
     public function index()
     {
-        $posts = Post::all();
-        return view('posts.index')->with('products', $posts);
+        $posts = Product::all();
+        return view('products.index')->with('products', $posts);
     }
 
     /**
@@ -28,7 +28,7 @@ class PostsController extends Controller
     public function create(Request $request)
     {
         $request->session()->forget('update');
-        return view('posts.create');
+        return view('products.create');
     }
 
     /**
@@ -43,19 +43,19 @@ class PostsController extends Controller
             'title' => 'required',
             'description' => 'required',
             'price' => 'required',
-            'image' => 'required'
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
-        $imagePath = time().$request->file('image')->getClientOriginalName();
+        $imagePath = time().$request->file('image')->getClientOriginalExtension();
         $request->file('image')->storeAs('public/media',$imagePath);
 
-        $post  = new Post;
+        $post  = new Product;
         $post->title = $request->input('title');
         $post->description = $request->input('description');
         $post->price = $request->input('price');
         $post->image = 'storage/media/'.$imagePath;
         $post->save();
 
-        return redirect('/posts')->with('success', 'Post Created');
+        return redirect('/admin')->with('success', 'Product Created');
     }
 
     /**
@@ -78,8 +78,8 @@ class PostsController extends Controller
     public function edit(Request $request, $id)
     {
         $request->session()->put('update',true);
-        $post = Post::find($id);
-        return view('posts.create')->with('post',$post);
+        $post = Product::find($id);
+        return view('products.create')->with('post',$post);
     }
 
     /**
@@ -95,22 +95,22 @@ class PostsController extends Controller
             'title' => 'required',
             'description' => 'required',
             'price' => 'required',
-            'image' => 'required|image|mimes:gif,jpeg,jpg,png|max:10000'
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
         //Handle file upload
-        $imagePath = time().$request->file('image')->getClientOriginalName();
+        $imagePath = time().$request->file('image')->getClientOriginalExtension();
         $request->file('image')->storeAs('public/media',$imagePath);
 
-        $post  = Post::find($id);
+        $post  = Product::find($id);
         $post->title = $request->input('title');
         $post->description = $request->input('description');
         $post->price = $request->input('price');
         $post->image = 'storage/media/'.$imagePath;
-        echo $post->image;
         $post->save();
 
-        return redirect('/posts')->with('success', 'Post Updated');
+        return redirect('/admin')->with('success', 'Product Updated');
+
     }
 
     /**
@@ -121,8 +121,8 @@ class PostsController extends Controller
      */
     public function destroy($id)
     {
-        $post = Post::find($id);
+        $post = Product::find($id);
         $post->delete();
-        return redirect('/posts')->with('success', 'Post Deleted');
+        return redirect('/admin')->with('success', 'Product Deleted');
     }
 }

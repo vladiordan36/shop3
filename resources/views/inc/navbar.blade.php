@@ -11,7 +11,7 @@
             </button>
 
             <!-- Branding Image -->
-            <a class="navbar-brand" href="{{ url('/') }}">
+            <a class="navbar-brand" href="/index">
                 {{ config('app.name', 'Laravel') }}
             </a>
         </div>
@@ -19,42 +19,29 @@
         <div class="collapse navbar-collapse" id="app-navbar-collapse">
             <!-- Left Side Of Navbar -->
             <ul class="nav navbar-nav">
-                <li><a href="/">{{ __('messages.products') }}</a></li>
+                <li><a href="/index">{{ __('messages.products') }}</a></li>
                 <li>
                     <a href="/cart">{{ __('messages.cart') }}
-                        <span class="badge">{{Session::has('cart') ? Session::get('cart')->totalQuantity : ''}}</span>
+                        <span class="badge">{{Session::has('cart') ? count(Session::get('cart')) : ''}}</span>
                     </a>
                 </li>
             </ul>
 
             <!-- Right Side Of Navbar -->
             <ul class="nav navbar-nav navbar-right">
-                <!-- Authentication Links -->
-                @if (Auth::guest())
-                    <li><a href="{{ route('login') }}">{{ __('messages.login') }}</a></li>
-                    <li><a href="{{ route('register') }}">{{ __('messages.register') }}</a></li>
+                @if(Session::has('logged in'))
+                    <li>
+                        <a href="/admin">{{ __('messages.admin') }}</a>
+                    </li>
+                    <li>
+                        <a href={{route('product.create')}}>{{ __('messages.add') }}</a>
+                    </li>
+                    <li>
+                        <a href="/logout">{{ __('messages.logout') }}</a>
+                    </li>
                 @else
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-                            {{ Auth::user()->name }} <span class="caret"></span>
-                        </a>
-
-                        <ul class="dropdown-menu" role="menu">
-                            <li>
-                                <a href="/posts">{{ __('messages.admin') }}</a>
-                                <a href={{route('product.create')}}>{{ __('messages.add') }}</a>
-
-                                <a href="{{ route('logout') }}"
-                                   onclick="event.preventDefault();
-                                                     document.getElementById('logout-form').submit();">
-                                    {{ __('messages.logout') }}
-                                </a>
-
-                                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                                    {{ csrf_field() }}
-                                </form>
-                            </li>
-                        </ul>
+                    <li>
+                        <a href="/login">{{ __('messages.login') }}</a>
                     </li>
                 @endif
             </ul>
