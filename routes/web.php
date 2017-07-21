@@ -11,6 +11,7 @@
 |
 */
 
+Route::get('/','PagesController@index');
 
 Route::get('/add-to-cart/{id}', [
     'uses' => 'PagesController@addToCart',
@@ -32,15 +33,15 @@ Route::get('/checkout', [
     'as' => 'product.checkout'
 ]);
 
-Route::get('/product/{id}',[
-    'uses' => 'ProductsController@edit',
-    'as' => 'product.edit'
-]);
-
-Route::get('/product',[
+Route::get('/product/{id}/{status}',[
     'uses' => 'ProductsController@create',
     'as' => 'product.create'
-]);
+])->middleware('login');
+
+Route::post('/stored/{id}/{status}',[
+    'uses' => 'ProductsController@store',
+    'as' => 'product.store'
+])->middleware('login');
 
 Route::get('/delete/{id}',[
     'uses' => 'ProductsController@destroy',
@@ -51,7 +52,7 @@ Route::get('/cart','PagesController@cart');
 
 Route::get('/index', 'PagesController@index');
 
-Route::resource('/admin','ProductsController');
+Route::get('/admin', 'ProductsController@index')->middleware('login');
 
 Route::get('/login', function(){
     return view('auth.login');

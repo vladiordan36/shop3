@@ -16,8 +16,8 @@ class ProductsController extends Controller
      */
     public function index()
     {
-        $posts = Product::all();
-        return view('products.index')->with('products', $posts);
+        $products = Product::all();
+        return view('products.index')->with('products', $products);
     }
 
     /**
@@ -25,10 +25,16 @@ class ProductsController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create(Request $request)
-    {
-        $request->session()->forget('update');
-        return view('products.create');
+    public function create($id, $status){
+        if($status == 'update'){
+            $product = Product::find($id);
+        }
+        else{
+            $product = new Product;
+        }
+
+        return view('products.create')->with('product',$product)
+                                            ->with('status',$status);
     }
 
     /**
@@ -37,26 +43,10 @@ class ProductsController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
-    {
-        $this->validate($request,[
-            'title' => 'required',
-            'description' => 'required',
-            'price' => 'required',
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
-        ]);
-        $imagePath = time().$request->file('image')->getClientOriginalExtension();
-        $request->file('image')->storeAs('public/media',$imagePath);
-
-        $post  = new Product;
-        $post->title = $request->input('title');
-        $post->description = $request->input('description');
-        $post->price = $request->input('price');
-        $post->image = 'storage/media/'.$imagePath;
-        $post->save();
-
-        return redirect('/admin')->with('success', 'Product Created');
-    }
+    public function update(Request $request)
+{
+    //
+}
 
     /**
      * Display the specified resource.
@@ -75,12 +65,6 @@ class ProductsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit(Request $request, $id)
-    {
-        $request->session()->put('update',true);
-        $post = Product::find($id);
-        return view('products.create')->with('post',$post);
-    }
 
     /**
      * Update the specified resource in storage.
@@ -89,7 +73,7 @@ class ProductsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function store(Request $request, $id ,$status)
     {
         $this->validate($request,[
             'title' => 'required',
@@ -102,14 +86,21 @@ class ProductsController extends Controller
         $imagePath = time().$request->file('image')->getClientOriginalExtension();
         $request->file('image')->storeAs('public/media',$imagePath);
 
-        $post  = Product::find($id);
-        $post->title = $request->input('title');
-        $post->description = $request->input('description');
-        $post->price = $request->input('price');
-        $post->image = 'storage/media/'.$imagePath;
-        $post->save();
+        if($status == 'update'){
+            $msg = "Product Updated";
+            $product = Product::find($id);
+        }
+        else{
+            $msg = "Product Created";
+            $product = new Product;
+        }
+        $product->title = $request->input('title');
+        $product->description = $request->input('description');
+        $product->price = $request->input('price');
+        $product->image = 'storage/media/'.$imagePath;
+        $product->save();
 
-        return redirect('/admin')->with('success', 'Product Updated');
+        return redirect('/admin')->with('success', $msg);
 
     }
 
@@ -121,8 +112,8 @@ class ProductsController extends Controller
      */
     public function destroy($id)
     {
-        $post = Product::find($id);
-        $post->delete();
+        $product = Product::find($id);
+        $product->delete();
         return redirect('/admin')->with('success', 'Product Deleted');
     }
 }

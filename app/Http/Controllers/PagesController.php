@@ -10,33 +10,35 @@ class PagesController extends Controller
 {
     public function index(){
         $cart = Session::get('cart');
-        $items = Product::all();
-        $products = array();
-        foreach($items as $item){
-            if(!isset($cart[$item['ID']])){
-                $products[] = $item;
-            }
+        if(count(Session::get('cart'))){
+            $products = Product::wherenotin('ID', array_keys($cart))->get();
+        }
+        else{
+            $products = Product::all();
         }
         return view("pages.index")->with('products',$products);
     }
 
     public function cart(){
         $cart = Session::get('cart');
-        $items = Product::all();
-        $products = array();
         $total = 0;
-        foreach($items as $item){
-            if(isset($cart[$item['ID']])){
-                $products[] = $item;
-                $total += $item['price']*$cart[$item['ID']];
-            }
+        if(count(Session::get('cart'))){
+            $products = Product::wherein('ID', array_keys($cart))->get();
         }
+        else{
+            $products = Product::all();
+        }
+
+        foreach($products as $product){
+            $total += $product['price'] * $cart[$product['ID']];
+        }
+
         return view('pages.cart')->with('products',$products)
                                        ->with('cart',$cart)
                                        ->with('total',$total);
     }
 
-    public function addToCart(Request $request, $id){
+    public function addToCart($id){
         if(!Session::has('cart')){
             $cart=[];
             $cart[$id] = 1;
@@ -45,23 +47,22 @@ class PagesController extends Controller
             $cart = Session::get('cart');
             $cart[$id] = 1;
         }
-        $request->session()->put('cart', $cart);
+        Session::put('cart', $cart);
 
         return redirect('/index')->with('success', 'Product added to cart.');
     }
 
-    public function removeFromCart(Request $request, $id){
+    public function removeFromCart($id){
         $cart = Session::get('cart');
         unset($cart[$id]);
-        $request->session()->put('cart',$cart);
 
         if(count($cart)) {
-            $request->session()->put('cart', $cart);
+           Session::put('cart', $cart);
         }
         else{
-            $request->session()->forget('cart');
+            Session::forget('cart');
         }
-        
+
         return redirect('/cart')->with('success', 'Product removed from cart.');
     }
 
@@ -80,7 +81,7 @@ class PagesController extends Controller
 
         mail($request->input('email'), __('messages.order'), $message);
 
-        $request->session()->forget('cart');
+        Session::forget('cart');
         return redirect('/index')->with('success', 'Checkout successful.');
     }
 
@@ -99,10 +100,10 @@ class PagesController extends Controller
         }
 
         if(count($cart)) {
-            $request->session()->put('cart', $cart);
+            Session::put('cart', $cart);
         }
         else{
-            $request->session()->forget('cart');
+            Session::forget('cart');
         }
 
         return redirect('/cart')->with('success', 'Quantity updated.');
@@ -118,7 +119,7 @@ class PagesController extends Controller
         $user = $request->input('email');
         $pass = $request->input('password');
 
-        if($user != config('user','admin') || $pass != config('pass','admin')){
+        if($user != config('app.user','admin') || $pass != config('app.pass','admin')){
             return redirect('/login')->with('error','The email or password are invalid.');
         }
         $request->session()->put('logged in','true');

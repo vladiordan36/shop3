@@ -34,7 +34,7 @@
                         <a href="/admin">{{ __('messages.admin') }}</a>
                     </li>
                     <li>
-                        <a href={{route('product.create')}}>{{ __('messages.add') }}</a>
+                        <a href={{route('product.create', ['id' => 0, 'status' => 'create'])}}>{{ __('messages.add') }}</a>
                     </li>
                     <li>
                         <a href="/logout">{{ __('messages.logout') }}</a>

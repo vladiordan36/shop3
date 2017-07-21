@@ -2,7 +2,6 @@
 
 @section('content')
     <h1>{{ __('messages.admin') }}</h1>
-    @if(Session::has('logged in'))
         @if(count($products) > 0)
             @foreach($products as $product)
                 <div class="well" style="float:left; width:33%;">
@@ -12,7 +11,7 @@
                         <h5>{{$product['description']}}</h5>
                         <h4>{{$product['price']}}$</h4>
                         <a href="{{route('product.delete', ['id' => $product['ID']])}}" class="btn btn-danger">{{ __('messages.delete') }}</a>
-                        <a href="{{route('product.edit', ['id' => $product['ID']])}}" class="btn btn-info">{{ __('messages.edit') }}</a>
+                        <a href="{{route('product.create', ['id' => $product['ID'], 'status' => 'update'])}}" class="btn btn-info">{{ __('messages.edit') }}</a>
                     </div>
                 </div>
 
@@ -20,7 +19,5 @@
         @else
             <p>{{ __('messages.no products') }}</p>
         @endif
-    @else
-        <h3 class="alert-danger text-center">{{ __('messages.access denied') }}</h3>
-    @endif
+
 @endsection
