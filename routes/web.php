@@ -10,15 +10,14 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
-
-Route::get('/','PagesController@index');
+Route::get('/','PagesController@mainPage');
 
 Route::get('/add-to-cart/{id}', [
     'uses' => 'PagesController@addToCart',
     'as' => 'product.addToCart'
     ]);
 
-Route::get('/update-quantity/{id}', [
+Route::get('/update-quantity/{quantity}/{id}', [
     'uses' => 'PagesController@updateQuantity',
     'as' => 'product.updateQuantity'
 ]);
@@ -28,7 +27,7 @@ Route::get('/remove-from-cart/{id}', [
     'as' => 'product.removeFromCart'
 ]);
 
-Route::get('/checkout', [
+Route::get('/checkout/{mail}', [
     'uses' => 'PagesController@checkout',
     'as' => 'product.checkout'
 ]);

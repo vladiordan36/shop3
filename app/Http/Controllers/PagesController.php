@@ -8,6 +8,10 @@ use Session;
 
 class PagesController extends Controller
 {
+    public function mainPage(){
+        return view('index.html');
+    }
+
     public function index(){
         $cart = Session::get('cart');
         if(count(Session::get('cart'))){
@@ -16,7 +20,7 @@ class PagesController extends Controller
         else{
             $products = Product::all();
         }
-        return view("pages.index")->with('products',$products);
+        return response()->json($products);
     }
 
     public function cart(){
@@ -24,18 +28,20 @@ class PagesController extends Controller
         $total = 0;
         if(count(Session::get('cart'))){
             $products = Product::wherein('ID', array_keys($cart))->get();
+            foreach($products as $product){
+                $total += $product['price'] * $cart[$product['ID']];
+            }
         }
         else{
-            $products = Product::all();
+            $products = null;
         }
 
-        foreach($products as $product){
-            $total += $product['price'] * $cart[$product['ID']];
-        }
-
-        return view('pages.cart')->with('products',$products)
-                                       ->with('cart',$cart)
-                                       ->with('total',$total);
+        $results = [
+            'products' => $products,
+            'total' => $total,
+            'cart' => $cart
+        ];
+        return response()->json($results);
     }
 
     public function addToCart($id){
@@ -49,7 +55,7 @@ class PagesController extends Controller
         }
         Session::put('cart', $cart);
 
-        return redirect('/index')->with('success', 'Product added to cart.');
+        return $this->index();
     }
 
     public function removeFromCart($id){
@@ -63,10 +69,10 @@ class PagesController extends Controller
             Session::forget('cart');
         }
 
-        return redirect('/cart')->with('success', 'Product removed from cart.');
+        return $this->cart();
     }
 
-    public function checkout(Request $request){
+    public function checkout($mail){
         $cart = Session::get('cart');
         $total = 0;
         $message = 'Your order: <br /><br />';
@@ -79,18 +85,14 @@ class PagesController extends Controller
 
         $message = $message.'<br />'.'Total: '.$total.'$';
 
-        mail($request->input('email'), __('messages.order'), $message);
+        mail($mail, __('messages.order'), $message);
 
         Session::forget('cart');
-        return redirect('/index')->with('success', 'Checkout successful.');
+        return $this->cart();
     }
 
-    public function updateQuantity(Request $request, $id){
-        $this->validate($request,[
-           'quantity' => 'required|min:0|max:100'
-        ]);
+    public function updateQuantity($quantity, $id){
 
-        $quantity = $request->input('quantity');
         $cart = Session::get('cart');
         if($quantity){
             $cart[$id] = $quantity;
@@ -106,7 +108,7 @@ class PagesController extends Controller
             Session::forget('cart');
         }
 
-        return redirect('/cart')->with('success', 'Quantity updated.');
+        return $this->cart();
     }
 
     public function login(Request $request){

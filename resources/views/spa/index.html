@@ -1,0 +1,71 @@
+<html>
+<head>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript">
+        var changePage = function(page) {
+            $('.page').hide();
+            if (page.length) {
+                $('.' + page + 'Page').show();
+            }
+
+            if (page == 'index') {
+                $('.indexPage .productsTable').html('Loading');
+                $.ajax({
+                    url: '/index',
+                    dataType: 'JSON',
+                    success: function(response) {
+                        console.log(response);
+                        var html = [
+                            '<table>',
+                            '<tr>',
+                            '<th>Title</th>',
+                            '</tr>',
+                        ];
+
+                        $.each(response, function(index, value) {
+                            html.push('<tr>');
+                            html.push('<td>');
+                            html.push(value.title);
+                            html.push('</td>');
+                            html.push('</tr>');
+                        });
+
+                        html.push('</table>');
+                        $('.indexPage .productsTable').html(html);
+                    }
+                });
+            }
+        }
+
+        var getPage = function() {
+            var hash = window.location.hash;
+            if (hash.indexOf('#') == 0) {
+                hash = hash.substr(1);
+            }
+            if (hash.indexOf('/') == 0) {
+                hash = hash.substr(1);
+            }
+            return hash.split('/').shift();
+        }
+
+        $(document).ready(function() {
+            var page = getPage();
+            changePage(page ? page : 'index');
+        });
+
+        $(window).bind('hashchange', function() {
+            changePage(getPage());
+        });
+    </script>
+</head>
+<body>
+<div class="page indexPage" style="display: none;">
+    <div class="productsTable"></div>
+    <a href="#cart">Cart</a>
+</div>
+<div class="page cartPage" style="display: none;">
+    <div class="productsTable"></div>
+    <a href="#index">Index</a>
+</div>
+</body>
+</html>
