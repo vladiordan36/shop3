@@ -40,18 +40,23 @@ Route::get('/product/{id}/{status}',[
 Route::post('/stored/{id}/{status}',[
     'uses' => 'ProductsController@store',
     'as' => 'product.store'
-])->middleware('login');
+]);/*->middleware('login');*/
 
 Route::get('/delete/{id}',[
     'uses' => 'ProductsController@destroy',
     'as' => 'product.delete'
 ]);
 
+Route::get('/update/{id}',[
+    'uses' => 'ProductsController@update',
+    'as' => 'product.update'
+]);
+
 Route::get('/cart','PagesController@cart');
 
 Route::get('/index', 'PagesController@index');
 
-Route::get('/admin', 'ProductsController@index')->middleware('login');
+Route::get('/admin', 'ProductsController@index');/*->middleware('login');*/
 
 Route::get('/login', function(){
     return view('auth.login');

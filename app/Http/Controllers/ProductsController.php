@@ -17,7 +17,7 @@ class ProductsController extends Controller
     public function index()
     {
         $products = Product::all();
-        return view('products.index')->with('products', $products);
+        return response()->json($products);
     }
 
     /**
@@ -43,9 +43,10 @@ class ProductsController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request)
-{
-    //
+    public function update($id){
+    $product = Product::find($id);
+
+    return response()->json($product);
 }
 
     /**
@@ -73,9 +74,9 @@ class ProductsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request, $id ,$status)
+    public function store(Request $request, $id, $status)
     {
-        $this->validate($request,[
+        /*$this->validate($request,[
             'title' => 'required',
             'description' => 'required',
             'price' => 'required',
@@ -84,24 +85,19 @@ class ProductsController extends Controller
 
         //Handle file upload
         $imagePath = time().$request->file('image')->getClientOriginalExtension();
-        $request->file('image')->storeAs('public/media',$imagePath);
+        $request->file('image')->storeAs('public/media',$imagePath);*/
 
         if($status == 'update'){
-            $msg = "Product Updated";
             $product = Product::find($id);
         }
         else{
-            $msg = "Product Created";
             $product = new Product;
         }
         $product->title = $request->input('title');
         $product->description = $request->input('description');
         $product->price = $request->input('price');
-        $product->image = 'storage/media/'.$imagePath;
+        $product->image = $request->input('image');
         $product->save();
-
-        return redirect('/admin')->with('success', $msg);
-
     }
 
     /**
@@ -114,6 +110,6 @@ class ProductsController extends Controller
     {
         $product = Product::find($id);
         $product->delete();
-        return redirect('/admin')->with('success', 'Product Deleted');
+
     }
 }

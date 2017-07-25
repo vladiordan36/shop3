@@ -9,7 +9,7 @@ use Session;
 class PagesController extends Controller
 {
     public function mainPage(){
-        return view('index.html');
+        return redirect('index.html');
     }
 
     public function index(){
@@ -124,7 +124,7 @@ class PagesController extends Controller
         if($user != config('app.user','admin') || $pass != config('app.pass','admin')){
             return redirect('/login')->with('error','The email or password are invalid.');
         }
-        $request->session()->put('logged in','true');
+        Session::put('logged in','true');
         return redirect('/index')->with('success','Login successful');
     }
     public function logout(Request $request){
