@@ -20,7 +20,9 @@ class CheckLogin
             return $next($request);
         }
         else{
-            return redirect('/login')->with('error','Access denied. Please login to continue');
+            return response()->json([
+                'error' => 'Not allowed'
+            ]);
         }
 
     }

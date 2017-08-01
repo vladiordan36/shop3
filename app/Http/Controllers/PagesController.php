@@ -112,20 +112,18 @@ class PagesController extends Controller
     }
 
     public function login(Request $request){
+        $response = [
+            'success' => 'true'
+        ];
 
-        $this->validate($request,[
-            'email' => 'required',
-            'password' => 'required'
-        ]);
-
-        $user = $request->input('email');
-        $pass = $request->input('password');
+        $user = $request->input('user');
+        $pass = $request->input('pass');
 
         if($user != config('app.user','admin') || $pass != config('app.pass','admin')){
-            return redirect('/login')->with('error','The email or password are invalid.');
+           $response['success'] = 'false';
         }
         Session::put('logged in','true');
-        return redirect('/index')->with('success','Login successful');
+        return response()->json($response);
     }
     public function logout(Request $request){
         $request->session()->forget('logged in');

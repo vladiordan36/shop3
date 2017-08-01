@@ -40,7 +40,7 @@ Route::get('/product/{id}/{status}',[
 Route::post('/stored/{id}/{status}',[
     'uses' => 'ProductsController@store',
     'as' => 'product.store'
-]);/*->middleware('login');*/
+])->middleware('login');
 
 Route::get('/delete/{id}',[
     'uses' => 'ProductsController@destroy',
@@ -56,9 +56,9 @@ Route::get('/cart','PagesController@cart');
 
 Route::get('/index', 'PagesController@index');
 
-Route::get('/admin', 'ProductsController@index');/*->middleware('login');*/
+Route::get('/admin', 'ProductsController@index')->middleware('login');
 
-Route::get('/login', function(){
+Route::post('/login', function(){
     return view('auth.login');
 });
 

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Product;
 use DB;
 use Session;
+use Illuminate\Support\Facades\Input;
 
 class ProductsController extends Controller
 {
@@ -26,15 +27,7 @@ class ProductsController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function create($id, $status){
-        if($status == 'update'){
-            $product = Product::find($id);
-        }
-        else{
-            $product = new Product;
-        }
-
-        return view('products.create')->with('product',$product)
-                                            ->with('status',$status);
+        //
     }
 
     /**
@@ -76,28 +69,30 @@ class ProductsController extends Controller
      */
     public function store(Request $request, $id, $status)
     {
-        /*$this->validate($request,[
+       $this->validate($request,[
             'title' => 'required',
             'description' => 'required',
             'price' => 'required',
             'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
-
         //Handle file upload
-        $imagePath = time().$request->file('image')->getClientOriginalExtension();
-        $request->file('image')->storeAs('public/media',$imagePath);*/
-
+        $imagePath = time().'.'.$request->file('image')->getClientOriginalExtension();
+        $request->file('image')->storeAs('public/media',$imagePath);
         if($status == 'update'){
+            $msg = "Product Updated";
             $product = Product::find($id);
         }
         else{
+            $msg = "Product Created";
             $product = new Product;
         }
         $product->title = $request->input('title');
         $product->description = $request->input('description');
         $product->price = $request->input('price');
-        $product->image = $request->input('image');
+        $product->image = 'storage/media/'.$imagePath;
         $product->save();
+
+        #  retrun response()->json(['success'] => 'true');
     }
 
     /**
@@ -110,6 +105,5 @@ class ProductsController extends Controller
     {
         $product = Product::find($id);
         $product->delete();
-
     }
 }

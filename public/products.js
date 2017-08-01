@@ -4,22 +4,25 @@ var changePage = function(page) {
     if (page.length) {
         $('.' + page + 'Page').show();
     }
-    console.log(page);
     if (page == 'index' || page == 'cart' || page == 'admin') {
         $('.indexPage .productsTable').html('Loading');
         $.ajax({
             url: '/'+page,
             dataType: 'JSON',
             success: function(response){
-                getContent(response,page);
+                if(page == 'admin' && response.error){
+                    alert("Access denied");
+                    location.hash = 'login';
+                }
+                else{
+                    getContent(response,page);
+                }
             }
         });
     }
-    else if(page == 'login'){
-        setLoginPage();
-    }
-    else if(page == 'add'){
-        setAddProductPage();
+    else if(page == 'add' && !logged){
+        alert("Access denied");
+        location.hash = 'login';
     }
 }
 
@@ -48,6 +51,7 @@ function addToCart(id){
         url: '/add-to-cart/'+id,
         method: 'GET',
         success: function(){
+            location.hash = 'index';
             changePage('index');
         }
     });
@@ -58,6 +62,7 @@ function removeFromCart(id){
         url: '/remove-from-cart/'+id,
         method: 'GET',
         success: function(){
+            location.hash = 'cart';
             changePage('cart');
         }
     });
@@ -73,6 +78,7 @@ function checkout(){
             url: '/checkout/'+email.value,
             method: 'GET',
             success: function(){
+                location.hash = 'cart';
                 changePage('cart');
             }
         });
@@ -89,42 +95,35 @@ function updateQuantity(id){
            url: '/update-quantity/'+quantity.value+'/'+id,
            method: 'GET',
            success: function(){
-               changePage('cart');
+               location.hash = 'cart';
            }
         });
     }
 
 }
 
-function addProduct(id ,status){
-    console.log("add product");
-    var data = {
-        title : document.getElementById('title').value,
-        description : document.getElementById('description').value,
-        price : document.getElementById('price').value,
-        image : document.getElementById('image').value
-    }
-    $.ajax({
-        url : '/stored/'+id+'/'+status,
-        method : 'POST',
-        data: data,
-        success : function(){
-            changePage('admin');
-        }
-    })
+function add(){
+    document.getElementById('addProduct').setAttribute('onclick',"addProducts(0,'create')");
+    location.hash = 'add';
+}
+
+function addProducts(id ,status){
+    $('#myForm').attr('action', '/stored/'+id+'/'+status);
+    $('#myForm').submit();
+    $('#formMessage').html('Product added');
+    location.hash = 'admin';
 }
 function deleteProduct(id){
-    console.log("delete product");
     $.ajax({
         url : '/delete/'+id,
         method : "GET",
         success : function(){
+            location.hash = 'admin';
             changePage('admin');
         }
     })
 }
 function updateProduct(id){
-    console.log("update product");
     location.hash = 'add';
     $.ajax({
         url : '/update/'+id,
@@ -133,95 +132,53 @@ function updateProduct(id){
             document.getElementById('title').value = response.title;
             document.getElementById('description').value = response.description;
             document.getElementById('price').value = response.price;
-            document.getElementById('addProduct').setAttribute('onclick','addProduct('+id+',"update")');
+            document.getElementById('addProduct').setAttribute('onclick','addProducts('+id+',"update")');
         }
     });
 }
 
 function login(){
-    var user = document.getElementById('user');
-    var pass = document.getElementById('pass');
-    if(user.value == '' || pass.value == ''){
+    var email = document.getElementById('user');
+    var password = document.getElementById('pass');
+    if(email.value == '' || password.value == ''){
         alert("Please enter both username and password.")
     }
-    else if(user.value != 'admin' || pass.value != 'admin'){
-        alert("Login failed!")
-    }
     else{
-       logged = true;
-       location.hash = 'admin';
+        var data = {
+            user : email.value,
+            pass : password.value
+        };
+
+        $.ajax({
+           url : '/login-attempt',
+            method : "POST",
+            data : data,
+            success : function(response){
+               if(response.success == 'true'){
+                    alert("Login Successful");
+                    location.hash = 'admin';
+                    logged = true;
+               }
+               else{
+                   alert('Login Failed');
+               }
+           }
+        });
     }
 }
 
 function logout(){
-    logged = false;
-    location.hash = 'index';
+    $.ajax({
+        url : '/logout',
+        method : 'GET',
+        success : function(){
+            location.hash = 'index';
+            logged = false;
+        }
+    });
 }
-function setLoginPage(){
-    var html = [
-        '<table>',
-        '<tr>',
-        '<th><h1>Login</h1></th>',
-        '</tr>',
-        '<tr>',
-        '<td>',
-        '<input type="text", class="form" id="user" placeholder="Username" required>',
-        '</td>',
-        '</tr>',
-        '<tr>',
-        '<td>',
-        '<input type="password", class="form" id="pass" placeholder="Password" required>',
-        '</td>',
-        '</tr>',
-        '<tr>',
-        '<td>',
-        '<button class="btn btn-warning" id="login" onclick=login()>Login</button>',
-        '</td>',
-        '</tr>',
-        '</table>'
-    ]
-    $('.loginPage .form').html(html);
-}
-function setAddProductPage(){
-    var html = [
-        '<table>',
-        '<tr>',
-        '<th><h1>Add product</h1></th>',
-        '</tr>',
-        '<form class="form-group" action="" enctype="multipart/form-data">',
-        '<tr>',
-        '<td>',
-        '<input type="text", class="form-control" id="title" placeholder="Title" required>',
-        '</td>',
-        '</tr>',
-        '<tr>',
-        '<td>',
-        '<input type="textarea", class="form-control" id="description" placeholder="Description" required>',
-        '</td>',
-        '</tr>',
-        '<tr>',
-        '<td>',
-        '<input type="number", class="form-control" id="price" placeholder="Price" required>',
-        '</td>',
-        '</tr>',
-        '<tr>',
-        '<td>',
-        '<h4>Image </h4>',
-        '<input type="file", class="form" id="image" required>',
-        '</td>',
-        '</tr>',
-        '<tr>',
-        '<td>',
-        '<button class="btn btn-warning" id="addProduct" onclick=addProduct(0,"create")>Add</button>',
-        '</td>',
-        '</tr>',
-        '</form>',
-        '</table>'
-    ]
-    $('.addPage .form').html(html);
-}
+
 function getContent(response,page) {
-    console.log(response);
     var html = [
         '<table>',
         '<tr>',
@@ -293,7 +250,7 @@ function getContent(response,page) {
         $('.cartPage .productsTable').html(html);
     }
     else if(page == 'admin'){
-        html.push('<tr><td><a href="#add" class="btn btn-info">Add product</a></td></tr>');
+        html.push('<tr><td><button class="btn btn-info" id="add" onclick="add()">Add product</button></td></tr>');
         html.push('<tr><td><button class="btn btn-info" onclick=logout()>Logout</button></td></tr>');
         $('.adminPage .productsTable').html(html);
     }
